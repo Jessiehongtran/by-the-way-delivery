@@ -1,74 +1,100 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState} from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Alert, TouchableOpacity } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
-var markers = [
-  {
-    id: 1,
-    latitude : 37.6187 , 
-    longitude : 122.4924,
-    title: 'Foo Place',
-    subtitle: '1234 Foo Drive'
-  },
-  {
-    id: 2,
-    latitude : 37.6187 , 
-    longitude : 123.4924,
-    title: 'Foo Place',
-    subtitle: '1234 Foo Drive'
+
+
+export default class App extends React.Component {
+  state = {
+      location: null,
+      curPos: {
+        latitude : 37.6187 , 
+        longitude : -122.4924,
+      },
+      displayMap: false,
+      accuracy: 0,
+      markers: [
+              {
+                id: 1,
+                latitude : 37.6187 , 
+                longitude : -122.4924,
+                title: 'Foo Place',
+                subtitle: '1234 Foo Drive'
+              },
+              {
+                id: 2,
+                latitude : 37.6287 , 
+                longitude : -122.5924,
+                title: 'Foo Place',
+                subtitle: '1234 Foo Drive'
+              }
+            ]
   }
-];
 
+  findCoordinates = () => {
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const myCurPos = {
+          id: 3,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          title: 'my place',
+          subtitle: ''
+        }
+        const markers  = this.state.markers;
+        markers.push(myCurPos)
+        this.setState({ 
+            location: JSON.stringify(position),
+            curPos: myCurPos,
+            markers: markers,
+            displayMap: true,
+            accuracy: position.coords.accuracy
+        });
+      },
+      error => Alert.alert(error.message),
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+    )
 
+  }
 
-export default function App() {
-  const [markers, setMarkers] = useState([
-    {
-      id: 1,
-      latitude : 37.6187 , 
-      longitude : -122.4924,
-      title: 'Foo Place',
-      subtitle: '1234 Foo Drive'
-    },
-    {
-      id: 2,
-      latitude : 37.6287 , 
-      longitude : -122.5924,
-      title: 'Foo Place',
-      subtitle: '1234 Foo Drive'
-    }
-  ]);
+  render(){
+    const { curPos } = this.state;
 
-  return (
-    <View style={styles.container}>
-      <Text>Hello world!</Text>
-      <Text>By the way Delivery</Text>
-      <StatusBar style="auto" />
-      <MapView 
-        style={styles.map} 
-        provider={PROVIDER_GOOGLE}
-        showsUserLocation
-        initialRegion={{
-          latitude: 37.78825,
-          longitude: -122.4324,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.051,
-        }}
-      >
-      {markers.map(marker =>
-        <MapView.Marker
-            coordinate={{
-                latitude: marker.latitude,
-                longitude: marker.longitude}}
-            title= {marker.title}
-            pinColor = {"red"}
-            description={marker.subtitle}
-         />
-      )}
-      </MapView>
-    </View>
-  );
+    return (
+      <View style={styles.container}>
+        {this.state.displayMap
+        ? <MapView 
+          style={styles.map} 
+          provider={PROVIDER_GOOGLE}
+          initialRegion={{
+            latitude: 37.603550,
+            longitude: -122.054250,
+            latitudeDelta: 0.522,
+            longitudeDelta: 0.11,
+          }}
+        >
+        {this.state.markers.map(marker =>
+          <MapView.Marker
+              key={marker.id}
+              coordinate={{
+                  latitude: marker.latitude,
+                  longitude: marker.longitude}}
+              title= {marker.title}
+              pinColor = {"red"}
+              description={marker.subtitle}
+          />
+        )}
+        </MapView>
+        : null }
+        <TouchableOpacity onPress={this.findCoordinates}>
+            <Text>Find My Coords?</Text>
+            <Text>Location: { this.state.location }</Text>
+            <Text>Accuracy: { this.state.accuracy }</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -82,4 +108,10 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
   },
+  welcome: {
+    fontSize: 20,
+    textAlign: 'center',
+    position: 'absolute',
+    zIndex: 10
+  }
 });
