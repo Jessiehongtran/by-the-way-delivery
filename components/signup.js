@@ -50,7 +50,13 @@ export default class SignUp extends React.Component {
                         Sign in
                     </Text>
                 </View>
-                <Image alt="delivery guy" source="https://i.pinimg.com/originals/18/c6/8a/18c68a37140cce76fc0041cbef1baf5b.gif"/>
+                <Image 
+                    style={{ width: 200, height: 200, resizeMode: 'contain' }}
+                    source={{ 
+                        uri: 'https://i.pinimg.com/originals/18/c6/8a/18c68a37140cce76fc0041cbef1baf5b.gif',
+                        cache: 'only-if-cached'
+                    }}
+                />
             </View>
         )
     }
@@ -93,5 +99,10 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         marginTop: 10,
         fontFamily: 'AppleSDGothicNeo-Bold'
-    }
+    },
+    stretch: {
+        width: 50,
+        height: 50,
+        resizeMode: 'stretch'
+      }
 })
